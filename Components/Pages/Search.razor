@@ -1,0 +1,148 @@
+@page "/search"
+@rendermode InteractiveServer
+@inject IFootballDataService DataService
+@inject NavigationManager Nav
+
+<PageTitle>Search – FootballSA</PageTitle>
+
+<div class="page-header">
+    <div class="container">
+        <h1 class="page-header-title">🔍 Search</h1>
+        <div style="margin-top:1rem;max-width:500px;">
+            <div class="search-box" style="border-radius:var(--radius-md);padding:0.6rem 1.25rem;">
+                <span class="search-icon">🔍</span>
+                <input type="text"
+                       placeholder="Search teams, players, news..."
+                       @bind="_query"
+                       @bind:event="oninput"
+                       @onkeyup="HandleKey"
+                       style="font-size:1rem;" />
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container-wide">
+    @if (_loading)
+    {
+        <div class="loading-spinner"><div class="spinner"></div><span>Searching...</span></div>
+    }
+    else if (!string.IsNullOrWhiteSpace(_query))
+    {
+        @if (_teams.Any())
+        {
+            <div class="section">
+                <div class="section-header">
+                    <h2 class="section-title">🏟️ <span class="title-accent">Teams</span></h2>
+                    <span style="color:var(--text-muted);font-size:0.85rem;">@_teams.Count result(s)</span>
+                </div>
+                <div class="grid-4">
+                    @foreach (var t in _teams)
+                    {
+                        <TeamCard Team="t" />
+                    }
+                </div>
+            </div>
+        }
+
+        @if (_players.Any())
+        {
+            <div class="section">
+                <div class="section-header">
+                    <h2 class="section-title">👤 <span class="title-accent">Players</span></h2>
+                    <span style="color:var(--text-muted);font-size:0.85rem;">@_players.Count result(s)</span>
+                </div>
+                <div class="card p-0">
+                    @foreach (var (player, i) in _players.Select((p, i) => (p, i + 1)))
+                    {
+                        <PlayerCard Player="player" Rank="i" ShowRank="false" />
+                    }
+                </div>
+            </div>
+        }
+
+        @if (_matches.Any())
+        {
+            <div class="section">
+                <div class="section-header">
+                    <h2 class="section-title">⚽ <span class="title-accent">Matches</span></h2>
+                    <span style="color:var(--text-muted);font-size:0.85rem;">@_matches.Count result(s)</span>
+                </div>
+                <div class="grid-auto">
+                    @foreach (var m in _matches)
+                    {
+                        <MatchCard Match="m" />
+                    }
+                </div>
+            </div>
+        }
+
+        @if (_news.Any())
+        {
+            <div class="section">
+                <div class="section-header">
+                    <h2 class="section-title">📰 <span class="title-accent">News</span></h2>
+                    <span style="color:var(--text-muted);font-size:0.85rem;">@_news.Count result(s)</span>
+                </div>
+                <div class="grid-3">
+                    @foreach (var a in _news)
+                    {
+                        <NewsCard Article="a" />
+                    }
+                </div>
+            </div>
+        }
+
+        @if (!_teams.Any() && !_players.Any() && !_matches.Any() && !_news.Any())
+        {
+            <div class="empty-state">
+                <div class="empty-state-icon">🔍</div>
+                <div class="empty-state-title">No results for "@_query"</div>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="empty-state">
+            <div class="empty-state-icon">🔍</div>
+            <div class="empty-state-title">Start typing to search</div>
+        </div>
+    }
+</div>
+
+@code {
+    private string _query = "";
+    private bool _loading = false;
+    private List<Team> _teams = new();
+    private List<Player> _players = new();
+    private List<Match> _matches = new();
+    private List<NewsArticle> _news = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var uri = new Uri(Nav.Uri);
+        var qs = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query);
+        if (qs.TryGetValue("q", out var q))
+        {
+            _query = q.ToString();
+            await DoSearch();
+        }
+    }
+
+    private async Task HandleKey(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter" && !string.IsNullOrWhiteSpace(_query))
+            await DoSearch();
+    }
+
+    private async Task DoSearch()
+    {
+        if (string.IsNullOrWhiteSpace(_query)) return;
+        _loading = true;
+        _teams = await DataService.SearchTeamsAsync(_query);
+        _players = await DataService.SearchPlayersAsync(_query);
+        _matches = await DataService.SearchMatchesAsync(_query);
+        _news = await DataService.SearchNewsAsync(_query);
+        _loading = false;
+    }
+}

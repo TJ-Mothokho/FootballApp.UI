@@ -1,0 +1,15 @@
+<div class="tabs">
+    @foreach (var tab in TabItems)
+    {
+        <button class="tab-btn @(tab == ActiveTab ? "active" : "")"
+                @onclick="() => OnTabChange.InvokeAsync(tab)">
+            @tab
+        </button>
+    }
+</div>
+
+@code {
+    [Parameter] public List<string> TabItems { get; set; } = new();
+    [Parameter] public string ActiveTab { get; set; } = "";
+    [Parameter] public EventCallback<string> OnTabChange { get; set; }
+}

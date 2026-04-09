@@ -1,0 +1,89 @@
+@page "/league/{LeagueName}"
+@rendermode InteractiveServer
+@inject IFootballDataService DataService
+
+<PageTitle>@LeagueName – FootballSA</PageTitle>
+
+<div class="page-header">
+    <div class="container">
+        <div class="d-flex align-center gap-2">
+            <span class="@(LeagueName == "PSL" ? "badge badge-psl" : "badge badge-nfd")" style="font-size:1rem;padding:0.4rem 1rem;">@LeagueName</span>
+            <div>
+                <h1 class="page-header-title">@(LeagueName == "PSL" ? "DStv Premiership" : "National First Division")</h1>
+                <p class="page-header-subtitle">@(LeagueName == "PSL" ? "South Africa's top flight football league" : "South Africa's second division league")</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container-wide">
+    <Tabs TabItems="_tabs" ActiveTab="_activeTab" OnTabChange="SetTab" />
+
+    @if (_loading)
+    {
+        <div class="loading-spinner"><div class="spinner"></div><span>Loading...</span></div>
+    }
+    else if (_activeTab == "Table")
+    {
+        <LeagueTable Standings="_standings" ShowForm="true" />
+    }
+    else if (_activeTab == "Matches")
+    {
+        <div class="grid-auto">
+            @foreach (var m in _matches)
+            {
+                <MatchCard Match="m" />
+            }
+        </div>
+        @if (!_matches.Any())
+        {
+            <div class="empty-state"><div class="empty-state-icon">📅</div><div class="empty-state-title">No matches found</div></div>
+        }
+    }
+    else if (_activeTab == "Teams")
+    {
+        <div class="grid-4">
+            @foreach (var t in _teams)
+            {
+                <TeamCard Team="t" />
+            }
+        </div>
+    }
+    else if (_activeTab == "Top Scorers")
+    {
+        <div class="card p-0">
+            @foreach (var (player, i) in _topScorers.Select((p, i) => (p, i + 1)))
+            {
+                <PlayerCard Player="player" Rank="i" ShowRank="true" />
+            }
+        </div>
+        @if (!_topScorers.Any())
+        {
+            <div class="empty-state"><div class="empty-state-icon">⚽</div><div class="empty-state-title">No scorer data</div></div>
+        }
+    }
+</div>
+
+@code {
+    [Parameter] public string LeagueName { get; set; } = "PSL";
+
+    private bool _loading = true;
+    private string _activeTab = "Table";
+    private List<string> _tabs = new() { "Table", "Matches", "Teams", "Top Scorers" };
+    private List<Standing> _standings = new();
+    private List<Match> _matches = new();
+    private List<Team> _teams = new();
+    private List<Player> _topScorers = new();
+
+    protected override async Task OnParametersSetAsync()
+    {
+        _loading = true;
+        _standings = await DataService.GetStandingsAsync(LeagueName);
+        _matches = await DataService.GetMatchesAsync(league: LeagueName);
+        _teams = await DataService.GetTeamsAsync(league: LeagueName);
+        _topScorers = await DataService.GetTopScorersAsync(LeagueName);
+        _loading = false;
+    }
+
+    private void SetTab(string tab) => _activeTab = tab;
+}

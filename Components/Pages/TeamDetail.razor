@@ -1,0 +1,129 @@
+@page "/team/{Id:int}"
+@rendermode InteractiveServer
+@inject IFootballDataService DataService
+
+<PageTitle>@(_team?.Name ?? "Team") – FootballSA</PageTitle>
+
+@if (_loading)
+{
+    <div class="loading-spinner"><div class="spinner"></div><span>Loading...</span></div>
+}
+else if (_team == null)
+{
+    <div class="container"><div class="empty-state"><div class="empty-state-icon">❌</div><div class="empty-state-title">Team not found</div></div></div>
+}
+else
+{
+    <div class="page-header">
+        <div class="container">
+            <div class="team-header">
+                <img src="@_team.LogoUrl" alt="@_team.Name" class="team-header-logo" />
+                <div>
+                    <h1 class="team-header-name">@_team.Name</h1>
+                    <div class="team-header-meta">
+                        <span class="@(_team.League == "PSL" ? "badge badge-psl" : "badge badge-nfd")">@_team.League</span>
+                        <span class="badge badge-primary">📍 @_team.City</span>
+                        <span style="font-size:0.85rem;color:var(--text-muted);">Est. @_team.Founded</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-wide">
+        <Tabs TabItems="_tabs" ActiveTab="_activeTab" OnTabChange="SetTab" />
+
+        @if (_activeTab == "Overview")
+        {
+            <div style="display:grid;grid-template-columns:1fr 2fr;gap:1.5rem;">
+                <div>
+                    <div class="card mb-2">
+                        <div class="card-header"><span class="fw-bold">Club Info</span></div>
+                        <div class="card-body">
+                            <div class="info-item"><span class="info-label">Full Name</span><span class="info-value">@_team.Name</span></div>
+                            <div class="info-item"><span class="info-label">Stadium</span><span class="info-value">@_team.Stadium</span></div>
+                            <div class="info-item"><span class="info-label">City</span><span class="info-value">@_team.City</span></div>
+                            <div class="info-item"><span class="info-label">League</span><span class="info-value">@_team.League</span></div>
+                            <div class="info-item"><span class="info-label">Coach</span><span class="info-value">@_team.Coach</span></div>
+                            <div class="info-item"><span class="info-label">Founded</span><span class="info-value">@_team.Founded</span></div>
+                            <div class="info-item"><span class="info-label">Colors</span><span class="info-value">@_team.Colors</span></div>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div class="section-header">
+                        <h3 class="section-title">Recent Matches</h3>
+                    </div>
+                    <div class="grid-auto">
+                        @foreach (var m in _recentMatches.Take(4))
+                        {
+                            <MatchCard Match="m" />
+                        }
+                    </div>
+                    @if (!_recentMatches.Any())
+                    {
+                        <div class="empty-state"><div class="empty-state-icon">📅</div><div class="empty-state-title">No recent matches</div></div>
+                    }
+                </div>
+            </div>
+        }
+        else if (_activeTab == "Squad")
+        {
+            <div class="card p-0">
+                @foreach (var (player, i) in _players.Select((p, i) => (p, i + 1)))
+                {
+                    <PlayerCard Player="player" Rank="i" ShowRank="false" />
+                }
+            </div>
+            @if (!_players.Any())
+            {
+                <div class="empty-state"><div class="empty-state-icon">👕</div><div class="empty-state-title">No squad data</div></div>
+            }
+        }
+        else if (_activeTab == "News")
+        {
+            <div class="grid-3">
+                @foreach (var article in _news)
+                {
+                    <NewsCard Article="article" />
+                }
+            </div>
+            @if (!_news.Any())
+            {
+                <div class="empty-state"><div class="empty-state-icon">📰</div><div class="empty-state-title">No news for this team</div></div>
+            }
+        }
+    </div>
+}
+
+@code {
+    [Parameter] public int Id { get; set; }
+
+    private bool _loading = true;
+    private Team? _team;
+    private List<Player> _players = new();
+    private List<Match> _recentMatches = new();
+    private List<NewsArticle> _news = new();
+    private string _activeTab = "Overview";
+    private List<string> _tabs = new() { "Overview", "Squad", "News" };
+
+    protected override async Task OnParametersSetAsync()
+    {
+        _loading = true;
+        _team = await DataService.GetTeamByIdAsync(Id);
+        if (_team != null)
+        {
+            _players = await DataService.GetPlayersAsync(teamId: Id);
+            var allMatches = await DataService.GetMatchesAsync();
+            _recentMatches = allMatches
+                .Where(m => (m.HomeTeamId == Id || m.AwayTeamId == Id) && m.Status == "Finished")
+                .OrderByDescending(m => m.KickoffTime)
+                .ToList();
+            var allNews = await DataService.GetNewsAsync();
+            _news = allNews.Where(n => n.TeamName == _team.Name).ToList();
+        }
+        _loading = false;
+    }
+
+    private void SetTab(string tab) => _activeTab = tab;
+}

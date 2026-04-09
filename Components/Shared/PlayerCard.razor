@@ -1,0 +1,24 @@
+<NavLink href="@($"/player/{Player.Id}")" class="player-card" style="display:flex;align-items:center;gap:1rem;">
+    @if (ShowRank)
+    {
+        <span class="player-rank">#@Rank</span>
+    }
+    <div class="player-info" style="flex:1;">
+        <div class="player-name">@Player.Name</div>
+        <div class="player-team">@Player.TeamName &middot; @Player.Position</div>
+    </div>
+    <div style="text-align:center;">
+        <div class="player-stat-highlight">@Player.Goals</div>
+        <div class="player-stat-label">Goals</div>
+    </div>
+    <div style="text-align:center; margin-left:0.5rem;">
+        <div style="font-size:1rem; font-weight:700; color:var(--text-secondary);">@Player.Assists</div>
+        <div class="player-stat-label">Ast</div>
+    </div>
+</NavLink>
+
+@code {
+    [Parameter] public Player Player { get; set; } = default!;
+    [Parameter] public int Rank { get; set; }
+    [Parameter] public bool ShowRank { get; set; } = true;
+}

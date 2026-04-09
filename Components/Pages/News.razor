@@ -1,0 +1,77 @@
+@page "/news"
+@rendermode InteractiveServer
+@inject IFootballDataService DataService
+
+<PageTitle>News – FootballSA</PageTitle>
+
+<div class="page-header">
+    <div class="container">
+        <h1 class="page-header-title">📰 Latest News</h1>
+        <p class="page-header-subtitle">Breaking news, match reports and transfer updates</p>
+    </div>
+</div>
+
+<div class="container-wide">
+    <div class="filter-pills">
+        <button class="filter-pill @(_category == null ? "active" : "")" @onclick='() => SetCategory(null)'>All</button>
+        <button class="filter-pill @(_category == "General" ? "active" : "")" @onclick='() => SetCategory("General")'>General</button>
+        <button class="filter-pill @(_category == "Transfers" ? "active" : "")" @onclick='() => SetCategory("Transfers")'>Transfers</button>
+        <button class="filter-pill @(_category == "MatchReport" ? "active" : "")" @onclick='() => SetCategory("MatchReport")'>Match Reports</button>
+        <button class="filter-pill @(_league == "PSL" ? "active" : "")" @onclick='() => SetLeague("PSL")'>🏆 PSL</button>
+        <button class="filter-pill @(_league == "NFD" ? "active" : "")" @onclick='() => SetLeague("NFD")'>🥈 NFD</button>
+    </div>
+
+    @if (_loading)
+    {
+        <div class="loading-spinner"><div class="spinner"></div><span>Loading...</span></div>
+    }
+    else if (_news.Any())
+    {
+        <div class="mb-3">
+            <NewsCard Article="_news[0]" Hero="true" />
+        </div>
+        <div class="grid-3">
+            @foreach (var article in _news.Skip(1))
+            {
+                <NewsCard Article="article" />
+            }
+        </div>
+    }
+    else
+    {
+        <div class="empty-state">
+            <div class="empty-state-icon">📰</div>
+            <div class="empty-state-title">No news articles found</div>
+        </div>
+    }
+</div>
+
+@code {
+    private bool _loading = true;
+    private string? _category;
+    private string? _league;
+    private List<NewsArticle> _news = new();
+
+    protected override async Task OnInitializedAsync() => await LoadNews();
+
+    private async Task SetCategory(string? cat)
+    {
+        _category = cat;
+        _league = null;
+        await LoadNews();
+    }
+
+    private async Task SetLeague(string league)
+    {
+        _league = _league == league ? null : league;
+        _category = null;
+        await LoadNews();
+    }
+
+    private async Task LoadNews()
+    {
+        _loading = true;
+        _news = await DataService.GetNewsAsync(category: _category, league: _league);
+        _loading = false;
+    }
+}

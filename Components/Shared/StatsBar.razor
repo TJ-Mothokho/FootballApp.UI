@@ -1,0 +1,19 @@
+<div class="stat-row">
+    <div class="stat-label-left">@HomeValue</div>
+    <div class="stat-bar">
+        <div class="stat-bar-home" style="width:@(GetHomePct())%"></div>
+        <div class="stat-bar-away" style="width:@(GetAwayPct())%"></div>
+    </div>
+    <div class="stat-label-right">@AwayValue</div>
+    <div class="stat-label-name" style="position:absolute;left:50%;transform:translateX(-50%);font-size:0.72rem;color:var(--text-muted);">@Label</div>
+</div>
+
+@code {
+    [Parameter] public string Label { get; set; } = "";
+    [Parameter] public int HomeValue { get; set; }
+    [Parameter] public int AwayValue { get; set; }
+
+    private int Total => HomeValue + AwayValue;
+    private double GetHomePct() => Total == 0 ? 50 : Math.Round((double)HomeValue / Total * 100, 1);
+    private double GetAwayPct() => Total == 0 ? 50 : Math.Round((double)AwayValue / Total * 100, 1);
+}

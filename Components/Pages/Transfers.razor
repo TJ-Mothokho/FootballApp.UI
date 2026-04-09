@@ -1,0 +1,82 @@
+@page "/transfers"
+@rendermode InteractiveServer
+@inject IFootballDataService DataService
+
+<PageTitle>Transfers – FootballSA</PageTitle>
+
+<div class="page-header">
+    <div class="container">
+        <h1 class="page-header-title">🔄 Transfer News</h1>
+        <p class="page-header-subtitle">Latest player movements in South African football</p>
+    </div>
+</div>
+
+<div class="container-wide">
+    <div class="filter-pills">
+        <button class="filter-pill @(_league == null ? "active" : "")" @onclick='() => SetLeague(null)'>All Leagues</button>
+        <button class="filter-pill @(_league == "PSL" ? "active" : "")" @onclick='() => SetLeague("PSL")'>🏆 PSL</button>
+        <button class="filter-pill @(_league == "NFD" ? "active" : "")" @onclick='() => SetLeague("NFD")'>🥈 NFD</button>
+    </div>
+
+    @if (_loading)
+    {
+        <div class="loading-spinner"><div class="spinner"></div><span>Loading...</span></div>
+    }
+    else
+    {
+        <div class="card p-0">
+            @foreach (var t in _transfers)
+            {
+                <div class="transfer-item">
+                    <div style="font-size:1.5rem;">👤</div>
+                    <div style="flex:1;">
+                        <div class="transfer-player-name">@t.PlayerName</div>
+                        <div class="transfer-teams">
+                            @t.FromTeam
+                            <span style="color:var(--primary);margin:0 0.4rem;">→</span>
+                            @t.ToTeam
+                            <span style="margin-left:0.5rem;color:var(--text-dim);">· @t.PlayerPosition</span>
+                        </div>
+                    </div>
+                    <div style="text-align:right;">
+                        <div class="transfer-fee @GetFeeClass(t.Fee)">@t.Fee</div>
+                        <div style="font-size:0.75rem;color:var(--text-muted);margin-top:0.25rem;">@t.Date.ToString("dd MMM yyyy")</div>
+                    </div>
+                    <span class="@(t.League == "PSL" ? "badge badge-psl" : "badge badge-nfd")">@t.League</span>
+                </div>
+            }
+            @if (!_transfers.Any())
+            {
+                <div class="empty-state"><div class="empty-state-icon">🔄</div><div class="empty-state-title">No transfers found</div></div>
+            }
+        </div>
+    }
+</div>
+
+@code {
+    private bool _loading = true;
+    private string? _league;
+    private List<Transfer> _transfers = new();
+
+    protected override async Task OnInitializedAsync() => await LoadTransfers();
+
+    private async Task SetLeague(string? league)
+    {
+        _league = league;
+        await LoadTransfers();
+    }
+
+    private async Task LoadTransfers()
+    {
+        _loading = true;
+        _transfers = await DataService.GetTransfersAsync(league: _league);
+        _loading = false;
+    }
+
+    private string GetFeeClass(string fee) => fee switch
+    {
+        "Free" => "transfer-fee-free",
+        "Loan" => "transfer-fee-loan",
+        _ => "transfer-fee-paid"
+    };
+}

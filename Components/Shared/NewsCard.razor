@@ -1,0 +1,33 @@
+<NavLink href="@($"/news/{Article.Id}")" class="@(Hero ? "news-hero-card" : "news-card")">
+    <img src="@Article.ImageUrl"
+         alt="@Article.Title"
+         class="@(Hero ? "news-hero-image" : "news-card-image")" />
+    <div class="@(Hero ? "news-hero-body" : "news-card-body")">
+        <div class="d-flex gap-1 align-center mb-1" style="flex-wrap:wrap;">
+            <span class="badge badge-category">@Article.Category</span>
+            @if (!string.IsNullOrEmpty(Article.League))
+            {
+                <span class="@(Article.League == "PSL" ? "badge badge-psl" : "badge badge-nfd")">@Article.League</span>
+            }
+        </div>
+        <div class="@(Hero ? "news-hero-title" : "news-card-title")">@Article.Title</div>
+        <div class="@(Hero ? "news-hero-summary" : "news-card-summary")">@Article.Summary</div>
+        <div class="news-card-meta mt-1">
+            <span>✍️ @Article.Author</span>
+            <span>@TimeAgo(Article.PublishedAt)</span>
+        </div>
+    </div>
+</NavLink>
+
+@code {
+    [Parameter] public NewsArticle Article { get; set; } = default!;
+    [Parameter] public bool Hero { get; set; } = false;
+
+    private string TimeAgo(DateTime dt)
+    {
+        var diff = DateTime.Now - dt;
+        if (diff.TotalMinutes < 60) return $"{(int)diff.TotalMinutes}m ago";
+        if (diff.TotalHours < 24) return $"{(int)diff.TotalHours}h ago";
+        return $"{(int)diff.TotalDays}d ago";
+    }
+}

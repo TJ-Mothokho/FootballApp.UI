@@ -1,0 +1,243 @@
+@page "/match/{Id:int}"
+@rendermode InteractiveServer
+@inject IFootballDataService DataService
+
+<PageTitle>@(_match != null ? $"{_match.HomeTeamName} vs {_match.AwayTeamName}" : "Match") – FootballSA</PageTitle>
+
+@if (_loading)
+{
+    <div class="loading-spinner"><div class="spinner"></div><span>Loading...</span></div>
+}
+else if (_match == null)
+{
+    <div class="container"><div class="empty-state"><div class="empty-state-icon">❌</div><div class="empty-state-title">Match not found</div></div></div>
+}
+else
+{
+    <div class="match-detail-hero">
+        <div class="container">
+            <div class="d-flex align-center gap-1 mb-2" style="flex-wrap:wrap;">
+                @if (_match.Status == "Live")
+                {
+                    <span class="badge badge-live"><span class="live-dot"></span>LIVE @_match.Minute'</span>
+                }
+                else if (_match.Status == "Upcoming")
+                {
+                    <span class="badge badge-upcoming">Upcoming</span>
+                }
+                else
+                {
+                    <span class="badge badge-finished">Full Time</span>
+                }
+                <span class="@(_match.League == "PSL" ? "badge badge-psl" : "badge badge-nfd")">@_match.League</span>
+                <span style="font-size:0.8rem;color:var(--text-muted);">@_match.Round &middot; @_match.Stadium</span>
+            </div>
+            <div class="match-detail-teams">
+                <div class="match-detail-team">
+                    <img src="@_match.HomeTeamLogo" class="match-detail-logo" alt="@_match.HomeTeamName" />
+                    <div class="match-detail-team-name">@_match.HomeTeamName</div>
+                </div>
+                <div style="text-align:center;padding:0 1rem;">
+                    @if (_match.Status == "Upcoming")
+                    {
+                        <div class="match-detail-score" style="font-size:1.75rem;color:var(--text-muted);">@_match.KickoffTime.ToString("HH:mm")</div>
+                        <div style="font-size:0.85rem;color:var(--text-muted);margin-top:0.25rem;">@_match.KickoffTime.ToString("dd MMMM yyyy")</div>
+                    }
+                    else
+                    {
+                        <div class="match-detail-score">@_match.HomeScore – @_match.AwayScore</div>
+                    }
+                </div>
+                <div class="match-detail-team">
+                    <img src="@_match.AwayTeamLogo" class="match-detail-logo" alt="@_match.AwayTeamName" />
+                    <div class="match-detail-team-name">@_match.AwayTeamName</div>
+                </div>
+            </div>
+            <Tabs TabItems="_tabs" ActiveTab="_activeTab" OnTabChange="SetTab" />
+        </div>
+    </div>
+
+    <div class="container-wide" style="padding-top:1.5rem;">
+        @if (_activeTab == "Overview")
+        {
+            <div style="display:grid;grid-template-columns:2fr 1fr;gap:1.5rem;">
+                <div>
+                    @if (_events.Any())
+                    {
+                        <div class="card mb-2">
+                            <div class="card-header"><span class="fw-bold">Match Events</span></div>
+                            <div class="card-body p-0">
+                                @foreach (var ev in _events)
+                                {
+                                    <div class="timeline-event @(ev.Team.ToLower())">
+                                        <span class="event-minute">@ev.Minute'</span>
+                                        <span class="event-icon">@GetEventIcon(ev.Type)</span>
+                                        <div class="event-detail">
+                                            <div class="event-player">@ev.PlayerName</div>
+                                            @if (!string.IsNullOrEmpty(ev.AssistPlayerName))
+                                            {
+                                                <div class="event-assist">Assist: @ev.AssistPlayerName</div>
+                                            }
+                                        </div>
+                                        <span style="font-size:0.75rem;color:var(--text-muted);">@(ev.Team == "Home" ? _match.HomeTeamName : _match.AwayTeamName)</span>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+                <div>
+                    <div class="card mb-2">
+                        <div class="card-header"><span class="fw-bold">Match Info</span></div>
+                        <div class="card-body">
+                            <div class="info-item"><span class="info-label">Competition</span><span class="info-value">@_match.League</span></div>
+                            <div class="info-item"><span class="info-label">Round</span><span class="info-value">@_match.Round</span></div>
+                            <div class="info-item"><span class="info-label">Stadium</span><span class="info-value">@_match.Stadium</span></div>
+                            <div class="info-item"><span class="info-label">Kickoff</span><span class="info-value">@_match.KickoffTime.ToString("dd MMM yyyy, HH:mm")</span></div>
+                        </div>
+                    </div>
+                    @if (_odds != null)
+                    {
+                        <div class="card">
+                            <div class="card-header"><span class="fw-bold">Betting Odds</span><span style="font-size:0.75rem;color:var(--text-muted);">@_odds.Provider</span></div>
+                            <div class="card-body">
+                                <div class="odds-container">
+                                    <div class="odds-item"><div class="odds-label">Home Win</div><div class="odds-value">@_odds.HomeWin</div></div>
+                                    <div class="odds-item"><div class="odds-label">Draw</div><div class="odds-value">@_odds.Draw</div></div>
+                                    <div class="odds-item"><div class="odds-label">Away Win</div><div class="odds-value">@_odds.AwayWin</div></div>
+                                </div>
+                                <p style="font-size:0.7rem;color:var(--text-muted);margin-top:0.75rem;">18+ | Gamble responsibly | T&Cs apply</p>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+        else if (_activeTab == "Lineups")
+        {
+            <LineupDisplay Lineup="_lineup" HomeTeamName="@_match.HomeTeamName" AwayTeamName="@_match.AwayTeamName" />
+        }
+        else if (_activeTab == "Stats")
+        {
+            @if (_stats != null)
+            {
+                <div class="card" style="max-width:600px;margin:0 auto;">
+                    <div class="card-header">
+                        <span style="font-weight:700;color:var(--primary);">@_match.HomeTeamName</span>
+                        <span class="fw-bold">Match Statistics</span>
+                        <span style="font-weight:700;color:var(--accent);">@_match.AwayTeamName</span>
+                    </div>
+                    <div class="card-body">
+                        <div style="position:relative;">
+                            <StatsBar Label="Possession %" HomeValue="_stats.HomePossession" AwayValue="_stats.AwayPossession" />
+                            <StatsBar Label="Shots on Target" HomeValue="_stats.HomeShotsOnTarget" AwayValue="_stats.AwayShotsOnTarget" />
+                            <StatsBar Label="Shots off Target" HomeValue="_stats.HomeShotsOffTarget" AwayValue="_stats.AwayShotsOffTarget" />
+                            <StatsBar Label="Corners" HomeValue="_stats.HomeCorners" AwayValue="_stats.AwayCorners" />
+                            <StatsBar Label="Fouls" HomeValue="_stats.HomeFouls" AwayValue="_stats.AwayFouls" />
+                            <StatsBar Label="Yellow Cards" HomeValue="_stats.HomeYellowCards" AwayValue="_stats.AwayYellowCards" />
+                            <StatsBar Label="Red Cards" HomeValue="_stats.HomeRedCards" AwayValue="_stats.AwayRedCards" />
+                            <StatsBar Label="Offsides" HomeValue="_stats.HomeOffsides" AwayValue="_stats.AwayOffsides" />
+                        </div>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="empty-state"><div class="empty-state-icon">📊</div><div class="empty-state-title">Stats not available</div></div>
+            }
+        }
+        else if (_activeTab == "Events")
+        {
+            <div class="card" style="max-width:600px;margin:0 auto;">
+                <div class="card-header"><span class="fw-bold">Match Timeline</span></div>
+                @if (_events.Any())
+                {
+                    <div class="card-body p-0">
+                        @foreach (var ev in _events)
+                        {
+                            <div class="timeline-event @(ev.Team.ToLower())">
+                                <span class="event-minute">@ev.Minute'</span>
+                                <span class="event-icon">@GetEventIcon(ev.Type)</span>
+                                <div class="event-detail">
+                                    <div class="event-player">@ev.PlayerName</div>
+                                    @if (!string.IsNullOrEmpty(ev.AssistPlayerName))
+                                    {
+                                        <div class="event-assist">Assist: @ev.AssistPlayerName</div>
+                                    }
+                                    @if (!string.IsNullOrEmpty(ev.SecondPlayerName))
+                                    {
+                                        <div class="event-assist">↑ @ev.SecondPlayerName</div>
+                                    }
+                                </div>
+                                <span style="font-size:0.75rem;color:var(--text-muted);">@(ev.Team == "Home" ? _match.HomeTeamName : _match.AwayTeamName)</span>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="card-body"><div class="empty-state"><div class="empty-state-icon">📋</div><div class="empty-state-title">No events recorded</div></div></div>
+                }
+            </div>
+        }
+        else if (_activeTab == "Odds")
+        {
+            @if (_odds != null)
+            {
+                <div class="card" style="max-width:400px;margin:0 auto;">
+                    <div class="card-header"><span class="fw-bold">Betting Odds</span><span style="font-size:0.75rem;color:var(--text-muted);">via @_odds.Provider</span></div>
+                    <div class="card-body">
+                        <div class="odds-container">
+                            <div class="odds-item"><div class="odds-label">Home Win</div><div class="odds-value">@_odds.HomeWin</div></div>
+                            <div class="odds-item"><div class="odds-label">Draw</div><div class="odds-value">@_odds.Draw</div></div>
+                            <div class="odds-item"><div class="odds-label">Away Win</div><div class="odds-value">@_odds.AwayWin</div></div>
+                        </div>
+                        <p style="font-size:0.75rem;color:var(--text-muted);margin-top:1rem;text-align:center;">18+ | Gamble responsibly. T&Cs apply.</p>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="empty-state"><div class="empty-state-icon">💰</div><div class="empty-state-title">Odds not available</div></div>
+            }
+        }
+    </div>
+}
+
+@code {
+    [Parameter] public int Id { get; set; }
+
+    private bool _loading = true;
+    private Match? _match;
+    private MatchStats? _stats;
+    private List<MatchEvent> _events = new();
+    private List<LineupPlayer> _lineup = new();
+    private BettingOdds? _odds;
+    private string _activeTab = "Overview";
+    private List<string> _tabs = new() { "Overview", "Lineups", "Stats", "Events", "Odds" };
+
+    protected override async Task OnParametersSetAsync()
+    {
+        _loading = true;
+        _match = await DataService.GetMatchByIdAsync(Id);
+        if (_match != null)
+        {
+            _stats = await DataService.GetMatchStatsAsync(Id);
+            _events = await DataService.GetMatchEventsAsync(Id);
+            _lineup = await DataService.GetMatchLineupAsync(Id);
+            _odds = await DataService.GetBettingOddsAsync(Id);
+        }
+        _loading = false;
+    }
+
+    private void SetTab(string tab) => _activeTab = tab;
+
+    private string GetEventIcon(string type) => type switch
+    {
+        "Goal" => "⚽",
+        "YellowCard" => "🟨",
+        "RedCard" => "🟥",
+        "Substitution" => "🔄",
+        _ => "📋"
+    };
+}

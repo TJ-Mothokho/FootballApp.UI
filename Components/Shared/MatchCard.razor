@@ -1,0 +1,48 @@
+<NavLink href="@($"/match/{Match.Id}")" class="match-card">
+    <div class="match-card-meta">
+        <span class="@GetLeagueBadgeClass()">@Match.League</span>
+        <span>@Match.Round</span>
+    </div>
+
+    <div class="match-teams">
+        <div class="match-team">
+            <img src="@Match.HomeTeamLogo" alt="@Match.HomeTeamName" class="match-team-logo" />
+            <span class="match-team-name">@Match.HomeTeamName</span>
+        </div>
+
+        <div class="match-score-center">
+            @if (Match.Status == "Upcoming")
+            {
+                <span class="match-kickoff">@Match.KickoffTime.ToString("HH:mm")</span>
+            }
+            else
+            {
+                <span class="match-score">@Match.HomeScore – @Match.AwayScore</span>
+            }
+            @GetStatusBadge()
+        </div>
+
+        <div class="match-team">
+            <img src="@Match.AwayTeamLogo" alt="@Match.AwayTeamName" class="match-team-logo" />
+            <span class="match-team-name">@Match.AwayTeamName</span>
+        </div>
+    </div>
+
+    <div class="match-card-footer">
+        <span>📍 @Match.Stadium</span>
+        <span>@Match.KickoffTime.ToString("dd MMM")</span>
+    </div>
+</NavLink>
+
+@code {
+    [Parameter] public Match Match { get; set; } = default!;
+
+    private string GetLeagueBadgeClass() => Match.League == "PSL" ? "badge badge-psl" : "badge badge-nfd";
+
+    private RenderFragment GetStatusBadge() => Match.Status switch
+    {
+        "Live" => @<span class="badge badge-live"><span class="live-dot"></span>LIVE @Match.Minute'</span>,
+        "Upcoming" => @<span class="badge badge-upcoming">Upcoming</span>,
+        _ => @<span class="badge badge-finished">FT</span>
+    };
+}

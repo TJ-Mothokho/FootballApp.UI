@@ -1,0 +1,96 @@
+@page "/player/{Id:int}"
+@rendermode InteractiveServer
+@inject IFootballDataService DataService
+
+<PageTitle>@(_player?.Name ?? "Player") – FootballSA</PageTitle>
+
+@if (_loading)
+{
+    <div class="loading-spinner"><div class="spinner"></div><span>Loading...</span></div>
+}
+else if (_player == null)
+{
+    <div class="container"><div class="empty-state"><div class="empty-state-icon">❌</div><div class="empty-state-title">Player not found</div></div></div>
+}
+else
+{
+    <div class="page-header">
+        <div class="container">
+            <div class="player-profile-header">
+                <div class="player-number-badge">#@_player.Number</div>
+                <div style="flex:1;">
+                    <div class="player-profile-name">@_player.Name</div>
+                    <div style="margin-top:0.25rem;flex-wrap:wrap;" class="d-flex gap-1 align-center">
+                        <span class="badge badge-primary">@_player.Position</span>
+                        <NavLink href="@($"/team/{_player.TeamId}")" style="color:var(--text-muted);font-size:0.875rem;">@_player.TeamName</NavLink>
+                        <span style="font-size:0.85rem;color:var(--text-muted);">🌍 @_player.Nationality</span>
+                        <span style="font-size:0.85rem;color:var(--text-muted);">Age: @_player.Age</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-wide">
+        <div class="stat-boxes mb-3">
+            <div class="stat-box">
+                <div class="stat-box-value">@_player.Goals</div>
+                <div class="stat-box-label">Goals</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-box-value">@_player.Assists</div>
+                <div class="stat-box-label">Assists</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-box-value">@_player.Appearances</div>
+                <div class="stat-box-label">Appearances</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-box-value" style="color:#eab308;">@_player.YellowCards</div>
+                <div class="stat-box-label">Yellow Cards</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-box-value" style="color:var(--live-red);">@_player.RedCards</div>
+                <div class="stat-box-label">Red Cards</div>
+            </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;">
+            <div class="card">
+                <div class="card-header"><span class="fw-bold">Player Profile</span></div>
+                <div class="card-body">
+                    <div class="info-item"><span class="info-label">Full Name</span><span class="info-value">@_player.Name</span></div>
+                    <div class="info-item"><span class="info-label">Position</span><span class="info-value">@_player.Position</span></div>
+                    <div class="info-item"><span class="info-label">Shirt Number</span><span class="info-value">#@_player.Number</span></div>
+                    <div class="info-item"><span class="info-label">Nationality</span><span class="info-value">@_player.Nationality</span></div>
+                    <div class="info-item"><span class="info-label">Age</span><span class="info-value">@_player.Age</span></div>
+                    <div class="info-item"><span class="info-label">Club</span>
+                        <NavLink href="@($"/team/{_player.TeamId}")" class="info-value">@_player.TeamName</NavLink>
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header"><span class="fw-bold">Season Statistics</span></div>
+                <div class="card-body">
+                    <div class="info-item"><span class="info-label">Goals per Game</span><span class="info-value">@(_player.Appearances > 0 ? ((double)_player.Goals / _player.Appearances).ToString("F2") : "0.00")</span></div>
+                    <div class="info-item"><span class="info-label">Assists per Game</span><span class="info-value">@(_player.Appearances > 0 ? ((double)_player.Assists / _player.Appearances).ToString("F2") : "0.00")</span></div>
+                    <div class="info-item"><span class="info-label">Goal Contributions</span><span class="info-value">@(_player.Goals + _player.Assists)</span></div>
+                    <div class="info-item"><span class="info-label">Cards per Game</span><span class="info-value">@(_player.Appearances > 0 ? ((double)_player.YellowCards / _player.Appearances).ToString("F2") : "0.00")</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public int Id { get; set; }
+    private bool _loading = true;
+    private Player? _player;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        _loading = true;
+        _player = await DataService.GetPlayerByIdAsync(Id);
+        _loading = false;
+    }
+}
