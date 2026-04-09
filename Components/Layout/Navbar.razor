@@ -1,0 +1,62 @@
+@rendermode InteractiveServer
+
+<nav class="navbar">
+    <div class="navbar-inner">
+        <NavLink href="/" class="navbar-brand" Match="NavLinkMatch.All">
+            <span class="brand-icon">⚽</span>
+            <span>Football<span class="brand-accent">SA</span></span>
+        </NavLink>
+
+        <ul class="navbar-nav @(_menuOpen ? "open" : "")">
+            <li>
+                <NavLink href="/" class="nav-link" Match="NavLinkMatch.All">Home</NavLink>
+            </li>
+            <li class="dropdown">
+                <span class="nav-link" style="cursor:pointer">Leagues ▾</span>
+                <div class="dropdown-menu">
+                    <NavLink href="/league/PSL" class="dropdown-item">🏆 PSL</NavLink>
+                    <NavLink href="/league/NFD" class="dropdown-item">🥈 NFD</NavLink>
+                </div>
+            </li>
+            <li>
+                <NavLink href="/matches" class="nav-link">Matches</NavLink>
+            </li>
+            <li>
+                <NavLink href="/news" class="nav-link">News</NavLink>
+            </li>
+            <li>
+                <NavLink href="/transfers" class="nav-link">Transfers</NavLink>
+            </li>
+        </ul>
+
+        <div class="navbar-actions">
+            <div class="search-box">
+                <span class="search-icon">🔍</span>
+                <input type="text"
+                       placeholder="Search..."
+                       @bind="_searchQuery"
+                       @bind:event="oninput"
+                       @onkeyup="HandleSearch" />
+            </div>
+            <button class="hamburger" @onclick="ToggleMenu">☰</button>
+        </div>
+    </div>
+</nav>
+
+@code {
+    private bool _menuOpen = false;
+    private string _searchQuery = "";
+
+    [Inject] private NavigationManager Nav { get; set; } = default!;
+
+    private void ToggleMenu() => _menuOpen = !_menuOpen;
+
+    private void HandleSearch(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter" && !string.IsNullOrWhiteSpace(_searchQuery))
+        {
+            Nav.NavigateTo($"/search?q={Uri.EscapeDataString(_searchQuery)}");
+            _searchQuery = "";
+        }
+    }
+}

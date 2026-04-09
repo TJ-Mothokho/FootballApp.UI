@@ -1,0 +1,78 @@
+@if (Lineup != null && Lineup.Any())
+{
+    var homeStarters = Lineup.Where(p => p.Team == "Home" && p.IsStarter).ToList();
+    var homeSubs = Lineup.Where(p => p.Team == "Home" && !p.IsStarter).ToList();
+    var awayStarters = Lineup.Where(p => p.Team == "Away" && p.IsStarter).ToList();
+    var awaySubs = Lineup.Where(p => p.Team == "Away" && !p.IsStarter).ToList();
+
+    <div class="lineup-container">
+        <div>
+            <div class="lineup-team-label">🏠 @HomeTeamName — Starting XI</div>
+            <ul class="lineup-list">
+                @foreach (var p in homeStarters)
+                {
+                    <li class="lineup-player-item">
+                        <span class="lineup-number">@p.Number</span>
+                        <span class="lineup-name">@p.Name</span>
+                        <span class="lineup-pos">@p.Position</span>
+                    </li>
+                }
+            </ul>
+            @if (homeSubs.Any())
+            {
+                <div class="lineup-subs-header">Substitutes</div>
+                <ul class="lineup-list">
+                    @foreach (var p in homeSubs)
+                    {
+                        <li class="lineup-player-item" style="opacity:0.7;">
+                            <span class="lineup-number">@p.Number</span>
+                            <span class="lineup-name">@p.Name</span>
+                            <span class="lineup-pos">@p.Position</span>
+                        </li>
+                    }
+                </ul>
+            }
+        </div>
+
+        <div>
+            <div class="lineup-team-label">✈️ @AwayTeamName — Starting XI</div>
+            <ul class="lineup-list">
+                @foreach (var p in awayStarters)
+                {
+                    <li class="lineup-player-item">
+                        <span class="lineup-number">@p.Number</span>
+                        <span class="lineup-name">@p.Name</span>
+                        <span class="lineup-pos">@p.Position</span>
+                    </li>
+                }
+            </ul>
+            @if (awaySubs.Any())
+            {
+                <div class="lineup-subs-header">Substitutes</div>
+                <ul class="lineup-list">
+                    @foreach (var p in awaySubs)
+                    {
+                        <li class="lineup-player-item" style="opacity:0.7;">
+                            <span class="lineup-number">@p.Number</span>
+                            <span class="lineup-name">@p.Name</span>
+                            <span class="lineup-pos">@p.Position</span>
+                        </li>
+                    }
+                </ul>
+            }
+        </div>
+    </div>
+}
+else
+{
+    <div class="empty-state">
+        <div class="empty-state-icon">📋</div>
+        <div class="empty-state-title">Lineups not available yet</div>
+    </div>
+}
+
+@code {
+    [Parameter] public List<LineupPlayer>? Lineup { get; set; }
+    [Parameter] public string HomeTeamName { get; set; } = "Home";
+    [Parameter] public string AwayTeamName { get; set; } = "Away";
+}

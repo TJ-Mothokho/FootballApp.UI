@@ -1,0 +1,12 @@
+<NavLink href="@($"/team/{Team.Id}")" class="team-card">
+    <img src="@Team.LogoUrl" alt="@Team.Name" class="team-card-logo" />
+    <div class="team-card-name">@Team.Name</div>
+    <div class="team-card-meta d-flex gap-1 align-center" style="justify-content:center; margin-top:0.5rem; flex-wrap:wrap;">
+        <span class="@(Team.League == "PSL" ? "badge badge-psl" : "badge badge-nfd")">@Team.League</span>
+        <span style="font-size:0.75rem; color:var(--text-muted);">@Team.City</span>
+    </div>
+</NavLink>
+
+@code {
+    [Parameter] public Team Team { get; set; } = default!;
+}

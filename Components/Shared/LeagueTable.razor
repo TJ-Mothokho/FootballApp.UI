@@ -1,0 +1,87 @@
+@if (Standings != null && Standings.Any())
+{
+    <div class="card p-0">
+        <table class="standings-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Team</th>
+                    <th>P</th>
+                    <th>W</th>
+                    <th>D</th>
+                    <th>L</th>
+                    <th>GD</th>
+                    <th class="points-cell">Pts</th>
+                    @if (ShowForm)
+                    {
+                        <th>Form</th>
+                    }
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var s in Standings)
+                {
+                    <tr>
+                        <td>
+                            <span class="@GetPositionClass(s.Position)">@s.Position</span>
+                        </td>
+                        <td class="team-cell">
+                            <NavLink href="@($"/team/{s.TeamId}")" class="team-cell-inner" style="color:inherit;">
+                                <img src="@s.TeamLogo" alt="@s.TeamName" class="team-cell-logo" />
+                                <span class="team-cell-name">@s.TeamName</span>
+                            </NavLink>
+                        </td>
+                        <td>@s.Played</td>
+                        <td>@s.Won</td>
+                        <td>@s.Drawn</td>
+                        <td>@s.Lost</td>
+                        <td style="color:@(s.GoalDifference >= 0 ? "var(--primary)" : "var(--live-red)")">
+                            @(s.GoalDifference > 0 ? $"+{s.GoalDifference}" : s.GoalDifference.ToString())
+                        </td>
+                        <td class="points-cell">@s.Points</td>
+                        @if (ShowForm)
+                        {
+                            <td>
+                                <div class="form-circles">
+                                    @foreach (var c in s.Form)
+                                    {
+                                        <span class="form-circle @GetFormClass(c)" title="@GetFormTitle(c)">@c</span>
+                                    }
+                                </div>
+                            </td>
+                        }
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+@code {
+    [Parameter] public List<Standing>? Standings { get; set; }
+    [Parameter] public bool ShowForm { get; set; } = true;
+    [Parameter] public int MaxRows { get; set; } = 100;
+
+    private string GetPositionClass(int pos) => pos switch
+    {
+        1 => "position-badge position-1",
+        2 => "position-badge position-2",
+        3 => "position-badge position-3",
+        _ when pos >= (Standings?.Count ?? 0) - 1 => "position-badge position-relegation",
+        _ => ""
+    };
+
+    private string GetFormClass(char c) => c switch
+    {
+        'W' => "form-w",
+        'D' => "form-d",
+        _ => "form-l"
+    };
+
+    private string GetFormTitle(char c) => c switch
+    {
+        'W' => "Win",
+        'D' => "Draw",
+        _ => "Loss"
+    };
+}

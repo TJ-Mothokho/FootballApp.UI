@@ -1,0 +1,67 @@
+@page "/news/{Id:int}"
+@rendermode InteractiveServer
+@inject IFootballDataService DataService
+
+<PageTitle>@(_article?.Title ?? "Article") – FootballSA</PageTitle>
+
+@if (_loading)
+{
+    <div class="loading-spinner"><div class="spinner"></div><span>Loading...</span></div>
+}
+else if (_article == null)
+{
+    <div class="container"><div class="empty-state"><div class="empty-state-icon">❌</div><div class="empty-state-title">Article not found</div></div></div>
+}
+else
+{
+    <div style="max-width:800px;margin:0 auto;padding:2rem 1rem;">
+        <img src="@_article.ImageUrl" alt="@_article.Title" style="width:100%;height:320px;object-fit:cover;border-radius:var(--radius-lg);margin-bottom:1.5rem;" />
+
+        <div class="d-flex gap-1 align-center mb-2" style="flex-wrap:wrap;">
+            <span class="badge badge-category">@_article.Category</span>
+            @if (!string.IsNullOrEmpty(_article.League))
+            {
+                <span class="@(_article.League == "PSL" ? "badge badge-psl" : "badge badge-nfd")">@_article.League</span>
+            }
+            @if (!string.IsNullOrEmpty(_article.TeamName))
+            {
+                <span class="badge badge-primary">@_article.TeamName</span>
+            }
+        </div>
+
+        <h1 style="font-size:2rem;font-weight:900;line-height:1.2;margin-bottom:1rem;letter-spacing:-0.5px;">@_article.Title</h1>
+
+        <div class="d-flex align-center gap-2 mb-3" style="color:var(--text-muted);font-size:0.875rem;">
+            <span>✍️ @_article.Author</span>
+            <span>&middot;</span>
+            <span>@_article.PublishedAt.ToString("dd MMMM yyyy, HH:mm")</span>
+        </div>
+
+        <p style="font-size:1.05rem;color:var(--text-secondary);font-style:italic;margin-bottom:1.5rem;border-left:3px solid var(--primary);padding-left:1rem;">
+            @_article.Summary
+        </p>
+
+        <div style="font-size:1rem;line-height:1.8;color:var(--text-secondary);">
+            @foreach (var para in _article.Content.Split('\n', StringSplitOptions.RemoveEmptyEntries))
+            {
+                <p style="margin-bottom:1rem;">@para</p>
+            }
+        </div>
+
+        <div class="separator"></div>
+        <NavLink href="/news" class="btn btn-ghost">← Back to News</NavLink>
+    </div>
+}
+
+@code {
+    [Parameter] public int Id { get; set; }
+    private bool _loading = true;
+    private NewsArticle? _article;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        _loading = true;
+        _article = await DataService.GetNewsArticleByIdAsync(Id);
+        _loading = false;
+    }
+}
