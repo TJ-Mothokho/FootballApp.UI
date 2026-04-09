@@ -38,6 +38,17 @@
                        @bind:event="oninput"
                        @onkeyup="HandleSearch" />
             </div>
+
+            @if (!_isLoggedIn)
+            {
+                <button class="auth-btn auth-btn-ghost" @onclick="Login">Login</button>
+                <button class="auth-btn auth-btn-primary" @onclick="Login">Sign Up</button>
+            }
+            else
+            {
+                <ProfileDropdown OnLogout="Logout" />
+            }
+
             <button class="hamburger" @onclick="ToggleMenu">☰</button>
         </div>
     </div>
@@ -45,11 +56,16 @@
 
 @code {
     private bool _menuOpen = false;
+    private bool _isLoggedIn = false;
     private string _searchQuery = "";
 
     [Inject] private NavigationManager Nav { get; set; } = default!;
 
     private void ToggleMenu() => _menuOpen = !_menuOpen;
+
+    private void Login() => _isLoggedIn = true;
+
+    private void Logout() => _isLoggedIn = false;
 
     private void HandleSearch(KeyboardEventArgs e)
     {
