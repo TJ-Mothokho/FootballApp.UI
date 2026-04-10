@@ -963,7 +963,23 @@ h1, h2, h3, h4, h5, h6 { font-weight: 700; line-height: 1.2; color: var(--text-p
     justify-content: space-around;
     padding: 0.25rem 0;
 }
-.away-half { flex-direction: column; }
+/* .pitch-half defaults to column-reverse (away team: GK at bottom, attackers toward center).
+   .home-half overrides to column so the home team's GK appears at the top of their half. */
+.home-half { flex-direction: column; }
+
+.pitch-team-label {
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    text-align: center;
+    padding: 0.15rem 0.5rem;
+    border-radius: var(--radius-full);
+    opacity: 0.7;
+    align-self: center;
+}
+.home-label { color: var(--primary); }
+.away-label { color: var(--accent); }
 
 .pitch-row {
     display: flex;

@@ -28,14 +28,15 @@
         <!-- ── Football pitch ───────────────────────────────────── -->
         <div class="pitch">
 
-            <!-- Away team: GK at top, attackers toward centre -->
-            <div class="pitch-half away-half">
-                @foreach (var row in awayRows.AsEnumerable().Reverse())
+            <!-- Home team: GK at top, attackers toward centre -->
+            <div class="pitch-half home-half">
+                <div class="pitch-team-label home-label">Home</div>
+                @foreach (var row in homeRows)
                 {
                     <div class="pitch-row">
                         @foreach (var p in row)
                         {
-                            <PitchPlayerCard Player="p" TeamClass="away" />
+                            <PitchPlayerCard Player="p" TeamClass="home" />
                         }
                     </div>
                 }
@@ -47,14 +48,15 @@
                 <div class="pitch-center-circle"></div>
             </div>
 
-            <!-- Home team: attackers toward centre, GK at bottom -->
-            <div class="pitch-half home-half">
-                @foreach (var row in homeRows.AsEnumerable().Reverse())
+            <!-- Away team: attackers toward centre, GK at bottom -->
+            <div class="pitch-half away-half">
+                <div class="pitch-team-label away-label">Away</div>
+                @foreach (var row in awayRows)
                 {
                     <div class="pitch-row">
                         @foreach (var p in row)
                         {
-                            <PitchPlayerCard Player="p" TeamClass="home" />
+                            <PitchPlayerCard Player="p" TeamClass="away" />
                         }
                     </div>
                 }
