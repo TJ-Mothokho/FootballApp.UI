@@ -891,6 +891,195 @@ h1, h2, h3, h4, h5, h6 { font-weight: 700; line-height: 1.2; color: var(--text-p
 .lineup-subs-header { font-size: 0.75rem; font-weight: 600; color: var(--text-muted); margin-top: 0.75rem; padding: 0.5rem 0; border-top: 1px solid var(--border); text-transform: uppercase; letter-spacing: 0.5px; }
 
 /* ============================================================
+   Pitch-based Lineup Display
+   ============================================================ */
+
+/* Header: team names + formation badges */
+.lineup-pitch-wrapper { max-width: 700px; margin: 0 auto; }
+.lineup-pitch-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.75rem;
+    gap: 0.5rem;
+}
+.lineup-pitch-team-info { display: flex; align-items: center; gap: 0.5rem; flex: 1; }
+.lineup-pitch-team-info.align-right { justify-content: flex-end; }
+.lineup-pitch-team-name { font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+.home-color { color: var(--primary); }
+.away-color { color: var(--accent); }
+.lineup-pitch-vs { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; white-space: nowrap; }
+.lineup-formation-tag {
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 0.15rem 0.5rem;
+    border-radius: var(--radius-full);
+    letter-spacing: 0.5px;
+}
+.home-tag { background: rgba(0,212,170,0.15); color: var(--primary); }
+.away-tag { background: rgba(255,107,53,0.15); color: var(--accent); }
+
+/* The pitch */
+.pitch {
+    background:
+        repeating-linear-gradient(
+            to bottom,
+            rgba(255,255,255,0.03) 0px,
+            rgba(255,255,255,0.03) 40px,
+            transparent 40px,
+            transparent 80px
+        ),
+        linear-gradient(180deg, #1a3d1a 0%, #22502a 30%, #27612e 50%, #22502a 70%, #1a3d1a 100%);
+    border: 2px solid rgba(255,255,255,0.12);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    min-height: 520px;
+    padding: 0.75rem 0.5rem;
+    position: relative;
+}
+
+/* Penalty arc outlines at top and bottom */
+.pitch::before,
+.pitch::after {
+    content: "";
+    display: block;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 44%;
+    height: 55px;
+    border: 1.5px solid rgba(255,255,255,0.25);
+    pointer-events: none;
+}
+.pitch::before { top: 0; border-top: none; border-radius: 0 0 60px 60px; }
+.pitch::after  { bottom: 0; border-bottom: none; border-radius: 60px 60px 0 0; }
+
+.pitch-half {
+    flex: 1;
+    display: flex;
+    flex-direction: column-reverse;
+    justify-content: space-around;
+    padding: 0.25rem 0;
+}
+.away-half { flex-direction: column; }
+
+.pitch-row {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.25rem;
+    flex-wrap: wrap;
+    padding: 0.2rem 0;
+}
+
+/* Halfway line + centre circle */
+.pitch-halfway {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    height: 2px;
+    background: rgba(255,255,255,0.35);
+    margin: 0.5rem 0;
+}
+.pitch-center-spot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.6);
+    position: absolute;
+}
+.pitch-center-circle {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(255,255,255,0.25);
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+}
+
+/* ── Player card on pitch ─── */
+.pitch-player {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: 0.25rem 0.15rem;
+    min-width: 48px;
+    max-width: 64px;
+    cursor: default;
+    transition: transform var(--transition);
+}
+.pitch-player:hover { transform: scale(1.08); }
+
+.pitch-player-shirt {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.72rem;
+    font-weight: 800;
+    color: #fff;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+    border: 2px solid rgba(255,255,255,0.25);
+}
+.pitch-player.home .pitch-player-shirt { background: var(--primary); color: #0f1117; }
+.pitch-player.away .pitch-player-shirt { background: var(--accent); }
+
+.pitch-player-name {
+    font-size: 0.6rem;
+    color: #fff;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 60px;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.9);
+    font-weight: 600;
+}
+
+.pitch-player-rating {
+    font-size: 0.55rem;
+    background: rgba(0,0,0,0.55);
+    color: #ffd700;
+    border-radius: 3px;
+    padding: 0.05rem 0.25rem;
+    font-weight: 700;
+}
+
+/* ── Bench section ─── */
+.lineup-bench-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-top: 1.25rem;
+}
+.lineup-bench-team { background: var(--bg-card); border-radius: var(--radius-md); padding: 0.75rem; }
+.bench-label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.5rem;
+}
+.bench-player-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.35rem 0;
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 0.8rem;
+}
+.bench-player-item:last-child { border-bottom: none; }
+
+/* ============================================================
    Buttons
    ============================================================ */
 
@@ -1182,6 +1371,10 @@ h1, h2, h3, h4, h5, h6 { font-weight: 700; line-height: 1.2; color: var(--text-p
     .match-score { font-size: 1.5rem; }
     .match-team-logo { width: 36px; height: 36px; }
     .stats-table th, .stats-table td { padding: 0.5rem 0.4rem; font-size: 0.75rem; }
+    .lineup-bench-container { grid-template-columns: 1fr; }
+    .pitch { min-height: 400px; }
+    .pitch-player-shirt { width: 28px; height: 28px; font-size: 0.65rem; }
+    .pitch-player-name { font-size: 0.55rem; max-width: 50px; }
 }
 
 /* ============================================================

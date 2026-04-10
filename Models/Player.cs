@@ -15,4 +15,8 @@ public class Player
     public int YellowCards { get; set; }
     public int RedCards { get; set; }
     public string Number { get; set; } = "";
+    public int ShirtNumber { get; set; }
+    public string ImageUrl { get; set; } = "";
+    public double Rating { get; set; }
+    public bool IsSubstitute { get; set; }
 }

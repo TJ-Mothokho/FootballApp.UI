@@ -7,4 +7,6 @@ public class LineupPlayer
     public string Position { get; set; } = "";
     public bool IsStarter { get; set; }
     public string Team { get; set; } = ""; // "Home" or "Away"
+    public double Rating { get; set; }
+    public string ImageUrl { get; set; } = "";
 }
