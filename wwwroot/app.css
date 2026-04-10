@@ -572,6 +572,7 @@ h1, h2, h3, h4, h5, h6 { font-weight: 700; line-height: 1.2; color: var(--text-p
 .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
 .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; }
 .grid-auto { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1rem; }
+.grid-main-sidebar { display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; }
 
 /* ============================================================
    League Table / Standings
@@ -1369,6 +1370,7 @@ h1, h2, h3, h4, h5, h6 { font-weight: 700; line-height: 1.2; color: var(--text-p
     .grid-2 { grid-template-columns: 1fr; }
     .grid-3 { grid-template-columns: 1fr; }
     .grid-4 { grid-template-columns: 1fr; }
+    .grid-main-sidebar { grid-template-columns: 1fr; }
     .hero-match { padding: 1.5rem; }
     .hero-score { font-size: 2.5rem; }
     .hero-team-logo { width: 56px; height: 56px; }
