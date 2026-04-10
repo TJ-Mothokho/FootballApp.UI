@@ -1,0 +1,21 @@
+<div class="pitch-player @TeamClass" title="@Player.Name (@Player.Position)">
+    <div class="pitch-player-shirt">@Player.Number</div>
+    <div class="pitch-player-name">@LastName(Player.Name)</div>
+    @if (Player.Rating > 0)
+    {
+        <div class="pitch-player-rating">@Player.Rating.ToString("F1")</div>
+    }
+</div>
+
+@code {
+    [Parameter] public LineupPlayer Player { get; set; } = default!;
+    /// <summary>"home" or "away" — controls shirt colour via CSS.</summary>
+    [Parameter] public string TeamClass { get; set; } = "home";
+
+    private static string LastName(string fullName)
+    {
+        if (string.IsNullOrWhiteSpace(fullName)) return fullName;
+        var parts = fullName.Trim().Split(' ');
+        return parts[^1];
+    }
+}

@@ -1,66 +1,101 @@
 @if (Lineup != null && Lineup.Any())
 {
     var homeStarters = Lineup.Where(p => p.Team == "Home" && p.IsStarter).ToList();
-    var homeSubs = Lineup.Where(p => p.Team == "Home" && !p.IsStarter).ToList();
+    var homeSubs     = Lineup.Where(p => p.Team == "Home" && !p.IsStarter).ToList();
     var awayStarters = Lineup.Where(p => p.Team == "Away" && p.IsStarter).ToList();
-    var awaySubs = Lineup.Where(p => p.Team == "Away" && !p.IsStarter).ToList();
+    var awaySubs     = Lineup.Where(p => p.Team == "Away" && !p.IsStarter).ToList();
 
-    <div class="lineup-container">
-        <div>
-            <div class="lineup-team-label">🏠 @HomeTeamName — Starting XI</div>
-            <ul class="lineup-list">
-                @foreach (var p in homeStarters)
+    var homeRows     = GetFormationRows(homeStarters);
+    var awayRows     = GetFormationRows(awayStarters);
+    var homeFormation = DeriveFormation(homeStarters);
+    var awayFormation = DeriveFormation(awayStarters);
+
+    <div class="lineup-pitch-wrapper">
+
+        <!-- Formation header -->
+        <div class="lineup-pitch-header">
+            <div class="lineup-pitch-team-info">
+                <span class="lineup-pitch-team-name home-color">@HomeTeamName</span>
+                <span class="lineup-formation-tag home-tag">@homeFormation</span>
+            </div>
+            <span class="lineup-pitch-vs">Formation</span>
+            <div class="lineup-pitch-team-info align-right">
+                <span class="lineup-formation-tag away-tag">@awayFormation</span>
+                <span class="lineup-pitch-team-name away-color">@AwayTeamName</span>
+            </div>
+        </div>
+
+        <!-- ── Football pitch ───────────────────────────────────── -->
+        <div class="pitch">
+
+            <!-- Away team: GK at top, attackers toward centre -->
+            <div class="pitch-half away-half">
+                @foreach (var row in awayRows.AsEnumerable().Reverse())
                 {
-                    <li class="lineup-player-item">
+                    <div class="pitch-row">
+                        @foreach (var p in row)
+                        {
+                            <PitchPlayerCard Player="p" TeamClass="away" />
+                        }
+                    </div>
+                }
+            </div>
+
+            <!-- Halfway line & centre circle -->
+            <div class="pitch-halfway">
+                <div class="pitch-center-spot"></div>
+                <div class="pitch-center-circle"></div>
+            </div>
+
+            <!-- Home team: attackers toward centre, GK at bottom -->
+            <div class="pitch-half home-half">
+                @foreach (var row in homeRows.AsEnumerable().Reverse())
+                {
+                    <div class="pitch-row">
+                        @foreach (var p in row)
+                        {
+                            <PitchPlayerCard Player="p" TeamClass="home" />
+                        }
+                    </div>
+                }
+            </div>
+
+        </div>
+
+        <!-- ── Bench ─────────────────────────────────────────────── -->
+        <div class="lineup-bench-container">
+            <div class="lineup-bench-team">
+                <div class="bench-label">🪑 @HomeTeamName — Bench</div>
+                @foreach (var p in homeSubs)
+                {
+                    <div class="bench-player-item">
                         <span class="lineup-number">@p.Number</span>
                         <span class="lineup-name">@p.Name</span>
                         <span class="lineup-pos">@p.Position</span>
-                    </li>
+                    </div>
                 }
-            </ul>
-            @if (homeSubs.Any())
-            {
-                <div class="lineup-subs-header">Substitutes</div>
-                <ul class="lineup-list">
-                    @foreach (var p in homeSubs)
-                    {
-                        <li class="lineup-player-item" style="opacity:0.7;">
-                            <span class="lineup-number">@p.Number</span>
-                            <span class="lineup-name">@p.Name</span>
-                            <span class="lineup-pos">@p.Position</span>
-                        </li>
-                    }
-                </ul>
-            }
-        </div>
-
-        <div>
-            <div class="lineup-team-label">✈️ @AwayTeamName — Starting XI</div>
-            <ul class="lineup-list">
-                @foreach (var p in awayStarters)
+                @if (!homeSubs.Any())
                 {
-                    <li class="lineup-player-item">
+                    <div style="color:var(--text-muted);font-size:0.8rem;">No substitutes listed</div>
+                }
+            </div>
+            <div class="lineup-bench-team">
+                <div class="bench-label">🪑 @AwayTeamName — Bench</div>
+                @foreach (var p in awaySubs)
+                {
+                    <div class="bench-player-item">
                         <span class="lineup-number">@p.Number</span>
                         <span class="lineup-name">@p.Name</span>
                         <span class="lineup-pos">@p.Position</span>
-                    </li>
+                    </div>
                 }
-            </ul>
-            @if (awaySubs.Any())
-            {
-                <div class="lineup-subs-header">Substitutes</div>
-                <ul class="lineup-list">
-                    @foreach (var p in awaySubs)
-                    {
-                        <li class="lineup-player-item" style="opacity:0.7;">
-                            <span class="lineup-number">@p.Number</span>
-                            <span class="lineup-name">@p.Name</span>
-                            <span class="lineup-pos">@p.Position</span>
-                        </li>
-                    }
-                </ul>
-            }
+                @if (!awaySubs.Any())
+                {
+                    <div style="color:var(--text-muted);font-size:0.8rem;">No substitutes listed</div>
+                }
+            </div>
         </div>
+
     </div>
 }
 else
@@ -75,4 +110,39 @@ else
     [Parameter] public List<LineupPlayer>? Lineup { get; set; }
     [Parameter] public string HomeTeamName { get; set; } = "Home";
     [Parameter] public string AwayTeamName { get; set; } = "Away";
+
+    // ── Position → row order ───────────────────────────────────────────────
+    private static int PositionOrder(string pos) => pos.ToUpperInvariant() switch
+    {
+        "GK"                         => 0,
+        "RB" or "LB" or "CB"
+            or "DF" or "RWB" or "LWB" => 1,
+        "CDM" or "DM"                => 2,
+        "CM" or "MF"                 => 3,
+        "LW" or "RW" or "AM"
+            or "CAM" or "SS"         => 4,
+        "ST" or "CF" or "FW"        => 5,
+        // Unrecognised positions fall back to central midfield row
+        _                            => 3
+    };
+
+    private static List<List<LineupPlayer>> GetFormationRows(List<LineupPlayer> players)
+    {
+        var groups = players
+            .GroupBy(p => PositionOrder(p.Position))
+            .OrderBy(g => g.Key)
+            .ToList();
+
+        return groups.Select(g => g.ToList()).ToList();
+    }
+
+    private static string DeriveFormation(List<LineupPlayer> starters)
+    {
+        var rows = GetFormationRows(starters);
+        // Skip the GK row (order 0)
+        var counts = rows
+            .Where(r => PositionOrder(r[0].Position) > 0)
+            .Select(r => r.Count.ToString());
+        return string.Join("-", counts);
+    }
 }
