@@ -14,7 +14,9 @@ public class Player
     public int Appearances { get; set; }
     public int YellowCards { get; set; }
     public int RedCards { get; set; }
+    /// <summary>Shirt number as a display string (may include leading zeros or special values).</summary>
     public string Number { get; set; } = "";
+    /// <summary>Shirt number as an integer for sorting and numeric comparisons.</summary>
     public int ShirtNumber { get; set; }
     public string ImageUrl { get; set; } = "";
     public double Rating { get; set; }
