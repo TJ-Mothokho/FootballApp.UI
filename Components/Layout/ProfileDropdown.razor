@@ -1,0 +1,29 @@
+@rendermode InteractiveServer
+
+<div class="profile-wrapper">
+    <button class="profile-avatar" @onclick="ToggleDropdown" title="Account">
+        👤
+    </button>
+
+    @if (_showDropdown)
+    {
+        <div class="profile-menu">
+            <button class="profile-menu-item">View Profile</button>
+            <button class="profile-menu-item profile-menu-logout" @onclick="HandleLogout">Logout</button>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter] public EventCallback OnLogout { get; set; }
+
+    private bool _showDropdown = false;
+
+    private void ToggleDropdown() => _showDropdown = !_showDropdown;
+
+    private async Task HandleLogout()
+    {
+        _showDropdown = false;
+        await OnLogout.InvokeAsync();
+    }
+}
