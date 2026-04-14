@@ -1,0 +1,11 @@
+@using FootballApp.UI.Utils
+
+<img src="@LogoHelper.GetTeamLogo(TeamName)"
+     alt="@TeamName"
+     class="@CssClass"
+     onerror="this.onerror=null;this.src='/logos/default.png';" />
+
+@code {
+    [Parameter] public string TeamName { get; set; } = "";
+    [Parameter] public string CssClass { get; set; } = "team-logo-default";
+}

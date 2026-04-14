@@ -1,10 +1,12 @@
+using FootballApp.UI.Utils;
+
 namespace FootballApp.UI.Models;
 public class Team
 {
     public int Id { get; set; }
     public string Name { get; set; } = "";
     public string ShortName { get; set; } = "";
-    public string LogoUrl { get; set; } = "";
+    public string LogoUrl => LogoHelper.GetTeamLogo(Name);
     public string Stadium { get; set; } = "";
     public string City { get; set; } = "";
     public string League { get; set; } = "";  // "PSL" or "NFD"

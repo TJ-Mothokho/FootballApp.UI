@@ -18,7 +18,7 @@
         </div>
         <div class="hero-match-teams">
             <div class="hero-team">
-                <img src="@Match.HomeTeamLogo" alt="@Match.HomeTeamName" class="hero-team-logo" />
+                <img src="@Match.HomeTeamLogo" alt="@Match.HomeTeamName" class="hero-team-logo" onerror="this.onerror=null;this.src='/logos/default.png';" />
                 <span class="hero-team-name">@Match.HomeTeamName</span>
             </div>
             <div class="hero-score-center">
@@ -40,7 +40,7 @@
                 <NavLink href="@($"/match/{Match.Id}")" class="btn btn-primary btn-sm mt-1">View Match →</NavLink>
             </div>
             <div class="hero-team">
-                <img src="@Match.AwayTeamLogo" alt="@Match.AwayTeamName" class="hero-team-logo" />
+                <img src="@Match.AwayTeamLogo" alt="@Match.AwayTeamName" class="hero-team-logo" onerror="this.onerror=null;this.src='/logos/default.png';" />
                 <span class="hero-team-name">@Match.AwayTeamName</span>
             </div>
         </div>
