@@ -8,6 +8,7 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
 builder.Services.AddScoped<IFootballDataService, MockFootballDataService>();
+builder.Services.AddScoped<IHeroService, HeroService>();
 builder.Services.AddScoped<MockLineupService>();
 
 var app = builder.Build();

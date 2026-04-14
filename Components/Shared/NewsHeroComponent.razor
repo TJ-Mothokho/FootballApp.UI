@@ -1,0 +1,17 @@
+<div class="container-wide" style="padding-top:2rem;">
+    <div class="hero-news">
+        <div class="hero-news-inner">
+            <img src="@News.ImageUrl" alt="@News.Title" class="hero-news-image" />
+            <div class="hero-news-overlay">
+                <span class="badge badge-news">LATEST NEWS</span>
+                <h2 class="hero-news-title">@News.Title</h2>
+                <p class="hero-news-summary">@News.Summary</p>
+                <NavLink href="@($"/news/{News.Id}")" class="btn btn-primary btn-sm mt-1">Read More →</NavLink>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter] public NewsArticle News { get; set; } = default!;
+}
