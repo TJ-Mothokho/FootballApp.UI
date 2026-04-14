@@ -1,0 +1,55 @@
+<div class="container-wide" style="padding-top:2rem;">
+    <div class="hero-match">
+        <div class="d-flex align-center gap-1 mb-2" style="flex-wrap:wrap;">
+            @if (Match.Status == "Live")
+            {
+                <span class="badge badge-live"><span class="live-dot"></span>LIVE NOW</span>
+            }
+            else if (Match.Status == "Upcoming")
+            {
+                <span class="badge badge-upcoming">UPCOMING</span>
+            }
+            else
+            {
+                <span class="badge badge-finished">FULL TIME</span>
+            }
+            <span class="@(Match.League == "PSL" ? "badge badge-psl" : "badge badge-nfd")">@Match.League</span>
+            <span style="font-size:0.8rem;color:var(--text-muted);">@Match.Round &middot; @Match.Stadium</span>
+        </div>
+        <div class="hero-match-teams">
+            <div class="hero-team">
+                <img src="@Match.HomeTeamLogo" alt="@Match.HomeTeamName" class="hero-team-logo" />
+                <span class="hero-team-name">@Match.HomeTeamName</span>
+            </div>
+            <div class="hero-score-center">
+                @if (Match.Status == "Live")
+                {
+                    <div class="hero-score">@Match.HomeScore – @Match.AwayScore</div>
+                    <span style="font-size:0.85rem;color:var(--live-red);font-weight:700;">@Match.Minute'</span>
+                }
+                else if (Match.Status == "Upcoming")
+                {
+                    <div class="hero-kickoff-time">@Match.KickoffTime.ToString("HH:mm")</div>
+                    <span style="font-size:0.85rem;color:var(--text-muted);">Kickoff</span>
+                }
+                else
+                {
+                    <div class="hero-score">@Match.HomeScore – @Match.AwayScore</div>
+                    <span style="font-size:0.85rem;color:var(--text-muted);font-weight:700;">Full Time</span>
+                }
+                <NavLink href="@($"/match/{Match.Id}")" class="btn btn-primary btn-sm mt-1">View Match →</NavLink>
+            </div>
+            <div class="hero-team">
+                <img src="@Match.AwayTeamLogo" alt="@Match.AwayTeamName" class="hero-team-logo" />
+                <span class="hero-team-name">@Match.AwayTeamName</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter] public Match MatchItem { get; set; } = default!;
+
+    // Alias to simplify template usage
+    private Match Match => MatchItem;
+}
