@@ -27,7 +27,7 @@
                         </td>
                         <td class="team-cell">
                             <NavLink href="@($"/team/{s.TeamId}")" class="team-cell-inner" style="color:inherit;">
-                                <img src="@s.TeamLogo" alt="@s.TeamName" class="team-cell-logo" />
+                                <img src="@s.TeamLogo" alt="@s.TeamName" class="team-cell-logo" onerror="this.onerror=null;this.src='/logos/default.png';" />
                                 <span class="team-cell-name">@s.TeamName</span>
                             </NavLink>
                         </td>

@@ -6,7 +6,7 @@
 
     <div class="match-teams">
         <div class="match-team">
-            <img src="@Match.HomeTeamLogo" alt="@Match.HomeTeamName" class="match-team-logo" />
+            <img src="@Match.HomeTeamLogo" alt="@Match.HomeTeamName" class="match-team-logo" onerror="this.onerror=null;this.src='/logos/default.png';" />
             <span class="match-team-name">@Match.HomeTeamName</span>
         </div>
 
@@ -23,7 +23,7 @@
         </div>
 
         <div class="match-team">
-            <img src="@Match.AwayTeamLogo" alt="@Match.AwayTeamName" class="match-team-logo" />
+            <img src="@Match.AwayTeamLogo" alt="@Match.AwayTeamName" class="match-team-logo" onerror="this.onerror=null;this.src='/logos/default.png';" />
             <span class="match-team-name">@Match.AwayTeamName</span>
         </div>
     </div>

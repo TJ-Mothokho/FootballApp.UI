@@ -34,7 +34,7 @@ else
             </div>
             <div class="match-detail-teams">
                 <div class="match-detail-team">
-                    <img src="@_match.HomeTeamLogo" class="match-detail-logo" alt="@_match.HomeTeamName" />
+                    <img src="@_match.HomeTeamLogo" class="match-detail-logo" alt="@_match.HomeTeamName" onerror="this.onerror=null;this.src='/logos/default.png';" />
                     <div class="match-detail-team-name">@_match.HomeTeamName</div>
                 </div>
                 <div style="text-align:center;padding:0 1rem;">
@@ -49,7 +49,7 @@ else
                     }
                 </div>
                 <div class="match-detail-team">
-                    <img src="@_match.AwayTeamLogo" class="match-detail-logo" alt="@_match.AwayTeamName" />
+                    <img src="@_match.AwayTeamLogo" class="match-detail-logo" alt="@_match.AwayTeamName" onerror="this.onerror=null;this.src='/logos/default.png';" />
                     <div class="match-detail-team-name">@_match.AwayTeamName</div>
                 </div>
             </div>

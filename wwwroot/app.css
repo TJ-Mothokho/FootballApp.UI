@@ -366,7 +366,7 @@ h1, h2, h3, h4, h5, h6 { font-weight: 700; line-height: 1.2; color: var(--text-p
     width: 48px;
     height: 48px;
     border-radius: 50%;
-    object-fit: cover;
+    object-fit: contain;
     background: var(--bg-surface);
 }
 
@@ -525,7 +525,7 @@ h1, h2, h3, h4, h5, h6 { font-weight: 700; line-height: 1.2; color: var(--text-p
     width: 80px; height: 80px;
     border-radius: 50%;
     background: var(--bg-surface);
-    object-fit: cover;
+    object-fit: contain;
     border: 2px solid var(--border);
 }
 
@@ -1299,7 +1299,7 @@ h1, h2, h3, h4, h5, h6 { font-weight: 700; line-height: 1.2; color: var(--text-p
     border-radius: 50%;
     background: var(--bg-surface);
     border: 2px solid var(--border);
-    object-fit: cover;
+    object-fit: contain;
 }
 
 .match-detail-team-name { font-size: 1rem; font-weight: 700; text-align: center; }
@@ -1486,3 +1486,6 @@ h1, h2, h3, h4, h5, h6 { font-weight: 700; line-height: 1.2; color: var(--text-p
 .p-0 { padding: 0 !important; }
 .text-center { text-align: center; }
 .separator { border: none; border-top: 1px solid var(--border); margin: 1.5rem 0; }
+
+/* ── Team Logo (reusable component) ───────────────────────────── */
+.team-logo-default { width: 24px; height: 24px; object-fit: contain; }

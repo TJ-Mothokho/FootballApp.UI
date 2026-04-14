@@ -1,10 +1,12 @@
+using FootballApp.UI.Utils;
+
 namespace FootballApp.UI.Models;
 public class Standing
 {
     public int Position { get; set; }
     public int TeamId { get; set; }
     public string TeamName { get; set; } = "";
-    public string TeamLogo { get; set; } = "";
+    public string TeamLogo => LogoHelper.GetTeamLogo(TeamName);
     public int Played { get; set; }
     public int Won { get; set; }
     public int Drawn { get; set; }

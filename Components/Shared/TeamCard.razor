@@ -1,5 +1,5 @@
 <NavLink href="@($"/team/{Team.Id}")" class="team-card">
-    <img src="@Team.LogoUrl" alt="@Team.Name" class="team-card-logo" />
+    <img src="@Team.LogoUrl" alt="@Team.Name" class="team-card-logo" onerror="this.onerror=null;this.src='/logos/default.png';" />
     <div class="team-card-name">@Team.Name</div>
     <div class="team-card-meta d-flex gap-1 align-center" style="justify-content:center; margin-top:0.5rem; flex-wrap:wrap;">
         <span class="@(Team.League == "PSL" ? "badge badge-psl" : "badge badge-nfd")">@Team.League</span>
